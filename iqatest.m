@@ -26,5 +26,5 @@ end
 mos=100-dmos
 iqa_ssim
 iqa_sparse
-[CC_ssim,SROCC_ssim,RMSE_ssim]=performance_eval(dmos,iqa_ssim,0)
-[CC_sparse,SROCC_sparse,RMSE_sparse]=performance_eval(dmos,iqa_sparse,0)
+[CC_ssim,SROCC_ssim,RMSE_ssim]=performance_eval(dmos',iqa_ssim',0)
+[CC_sparse,SROCC_sparse,RMSE_sparse]=performance_eval(dmos',iqa_sparse',0)
