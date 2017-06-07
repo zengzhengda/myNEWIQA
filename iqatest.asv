@@ -1,0 +1,19 @@
+clear all; clc;
+img1_path='I08.BMP';
+img_src=imread(img1_path);
+img_src_gray=rgb2gray(img_src);
+img_dst_list_path={};
+img_dst_list_path{1}='i08_15_4.bmp';
+img_dst_list_path{2}='I08_17_4.bmp';
+img_dst_list_path{3}='I08_07_1.bmp';
+img_dst_list_path{4}='I08_07_2.bmp';
+img_dst_list_path{5}='I08_07_3.bmp';
+img_dst_list_path{6}='I08_07_4.bmp';
+iqa_ssim=[];
+iqa_sparse=[];
+for i =1:length(img_dst_list_path)
+    img_dst=imread(img_dst_list_path{i});
+    img_dst_gray=rgb2gray(img_dst);
+    iqa_ssimx(i)=ssim_index(img_src_gray,img_dst_gray);
+    iqa_sparse(i)=Sparse_ssim(img_src_)
+end
