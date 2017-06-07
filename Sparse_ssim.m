@@ -9,6 +9,7 @@ codeWeight = [1 2 2^2 2^3 2^4 2^5 2^6 2^7] ; % coding weight
 % ssim parameters setting
 K(1)=0.01;
 K(2)=0.03;
+L=255;
 C1=(K(1)*L)^2;
 C2=(K(2)*L)^2;
 
@@ -18,7 +19,7 @@ imp1 = padarray(img1, [param.semiN + 1, param.semiN + 1], param.padval) ;  % ima
 imp2 = padarray(img2, [param.semiN + 1, param.semiN + 1], param.padval) ;  % image padding
 
 % variables initializing
-[r,c]=size(img1)
+[r,c]=size(img1);
 Y1 = zeros(8*(param.semiN + 1), 1) ;    % temple variable to obtain regression coefficients
 X1 = zeros((2*param.semiN + 1)^2, 8) ;    % temple variable to obtain regression coefficients
 Y2 = zeros(8*(param.semiN + 1), 1) ; 
@@ -53,22 +54,22 @@ for i = 1 : r
         
         %compute the local mean,standard deviation, and covariance
         [tempCoes1 path1] = mexLasso(Y1, X1, paramRegression) ;
-        tempCoes1 = full(tempCoes1) ;
-        tempCoes1=[tempCoes1(1:4) 0 tempCoes1(5:8)];
+        tempCoes1 = full(tempCoes1)' ;
+        tempCoes1=[tempCoes1(1:4) 1 tempCoes1(5:8)];
         tempCoes1=reshape(tempCoes1,[3,3]);
         patch1=imp1(R-1:R+1,C-1:C+1);
         patch11=tempCoes1.*patch1;
         mu1=mean2(patch11);
-        sigma1=std2(patch11);
+        sigma1=std(patch11(:),1);
         
         [tempCoes2 path2] = mexLasso(Y2, X2, paramRegression) ;
-        tempCoes2 = full(tempCoes2) ;
-        tempCoes2=[tempCoes2(1:4) 0 tempCoes2(5:8)];
+        tempCoes2 = full(tempCoes2)' ;
+        tempCoes2=[tempCoes2(1:4) 1 tempCoes2(5:8)];
         tempCoes2=reshape(tempCoes2,[3,3]);
         patch2=imp2(R-1:R+1,C-1:C+1);
         patch22= tempCoes2 .* patch2;
         mu2=mean2(patch22);
-        sigma2=std2(patch22);
+        sigma2=std(patch22(:),1);
         
         sigma12=mean2(patch11 .* patch22) - mu1 *mu2;
         
@@ -76,4 +77,6 @@ for i = 1 : r
         ssim_map(i,j)=ssim_local;
     end
 end
-ssim_sparse=mean2(ssim_map);
+ssim_sparse=mean2(ssim_map(~isnan(ssim_map)));
+
+% ssim_sparse=mean2(ssim_map);
