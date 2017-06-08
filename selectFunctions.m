@@ -380,6 +380,8 @@ function iqares=metric(refimage,disimage,metricnumber);
             param.lambda=[0.0002, 0];
             param.semiN=2;
             param.padval='symmetric';
+            refimage=double(rgb2gray(refimage));
+            disimage=double(rgb2gray(disimage));
             iqares=Sparse_ssim(refimage,disimage,param);
         case 20
             [iqares probs]= biqi(rgb2gray(disimage));
