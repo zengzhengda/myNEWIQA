@@ -1,4 +1,4 @@
-function [CC,SROCC,RMSE]=performance_eval(x,y,isShow)
+function [CC,SROCC,RMSE,beta]=performance_eval(x,y,isShow)
 % 性能评估函数
 %% logistic transform
 % modelfun = @(b,x)((b(1)-b(2))./(1+exp((x-b(3))./b(4)))+b(2)); % 常规的logistic函数
@@ -7,11 +7,17 @@ modelfun = @(b,x)(b(1).*(1/2-1./(1+exp(b(2).*(x-b(3)))))+b(4).*x+b(5));% 五参数
 rng('default') % for reproducibility
 
 % opts = statset('nlinfit');
-% opts.RobustWgtFun = 'bisquare';
+% opts.RobustWgtFun = 'logistic';
 
-beta0 = [1;1;0;1;1];
-beta = nlinfit(x,y,modelfun,beta0);
+beta0 = [0.2;-2;14;-0.1;1];
+% beta0 = [0,0,0,0,0];
+% beta = nlinfit(x,y,modelfun,beta0);
+% y_pred=modelfun(beta,x);
+
+% fit function
+beta=lsqcurvefit(modelfun,beta0,x,y);
 y_pred=modelfun(beta,x);
+
 %% plot figure
 % figure,plot(y,'*');
 % hold on;

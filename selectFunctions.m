@@ -1,3 +1,66 @@
+function [iqas_sub,iqas_obj,CCs,SROCCs,RMSEs,betas]=selectFunctions(DataBase,Metric)
+%IQA metric;
+%PSNR: iqaij=PSNR(refimg,disimg);
+%SSIM: [iqaij ssim_map] = ssim_index(refimg,disimg); %[mssim, ssim_map] = ssim_index(img1, img2, K, window, L)
+%MSSIM: iqaij = msssim(refimg,disimg); %overall_mssim = msssim(img1, img2, K, win, level, weight, method)
+%VIF:  iqaij = vifvec(refimg,disimg); %vif=vifvec(imorg,imdist);
+%[iqaij] = vsnr(refimg,disimg);  %[res] = vsnr(src_img, dst_img, alpha, viewing_params)
+%MAD:[I Map] = MAD_index_april_2010(refimg,disimg);iqaij=I.MAD;
+%[iqaij,iwmse,iwpsnr]= iwssim(refimg,disimg); %
+%FSIM: [FSIM, iqaij] = FeatureSIM(refimg,disimg); %[FSIM, FSIMc] = FeatureSIM(imageRef, imageDis);
+%GMSD: [iqaij, quality_map] = GMSD(refimg,disimg); % [score, quality_map] = GMSD(Y1, Y2);
+%[iqaij probs]= biqi(rgb2gray(disimg));
+% iqaij  = brisquescore(disimg);
+%iqaij = divine(disimg);
+%features = bliinds2_feature_extraction(disimg);
+%iqaij = bliinds_prediction(features) ;
+%{ 
+load cluster_center;
+im =  rgb2gray(disimg);
+feature_fun = @compute_DOG;
+iqaij = QAC(im, cluster_center, feature_fun),
+%}
+MetricName=cell(1,30);
+MetricName(1)={'PSNR'};MetricName(2)={'SSIM'};MetricName(3)={'MSSIM'};
+MetricName(4)={'VIF'};MetricName(5)={'VSNR'};MetricName(6)={'MAD'};
+MetricName(7)={'IWSSIM'};MetricName(8)={'FSIM'};MetricName(9)={'GMSD'};
+MetricName(10)={'Setr'};MetricName(11)={'SIQA'};
+MetricName(20)={'BIQI'};MetricName(21)={'BRISQUE'};MetricName(22)={'DIVINE'};
+MetricName(23)={'BLIINDS'};MetricName(24)={'QAC'};
+% ·µ»Ø½á¹û
+iqas_sub={};
+iqas_obj={};
+CCs=[];
+SROCCs=[];
+RMSEs=[];
+betas={};
+for m=1:length(DataBase)
+    for n=1:length(Metric)
+        DatabaseNum=DataBase(m);
+        MetricNum=Metric(n);
+        switch(DatabaseNum)
+            case 1
+                [iqa_sub,iqa_obj]=iqatest_live(MetricNum);
+            case 2
+                [iqa_sub,iqa_obj]=iqatest_csiq(MetricNum);
+            case 3
+                [iqa_sub,iqa_obj]=iqatest_tid2008(MetricNum);
+            case 4
+                [iqa_sub,iqa_obj]=iqatest_mdid(MetricNum);
+            case 5
+                [iqa_sub,iqa_obj]=iqatest_tid2013(MetricNum);
+            case 6
+                [iqa_sub,iqa_obj]=iqatest_cid2013(MetricNum);
+            case 7
+                [iqa_sub,iqa_obj]=iqatest_mdid(MetricNum);
+        end
+        iqas_sub{n}=iqa_sub;
+        iqas_obj{n}=iqa_obj;
+        [CCs(n),SROCCs(n),RMSEs(n),betas{n}]=performance_eval(iqa_sub,iqa_obj,0);
+   end
+end
+end
+
 %LIVE
 function [dmos_new,iqa_pred]=iqatest_live(MetricNum)
 load('..\Datasets\LIVE\refnames_all.mat');
@@ -14,19 +77,21 @@ pathd(4)={'..\Datasets\LIVE\gblur\'};
 pathd(5)={'..\Datasets\LIVE\fastfading\'};
 load('..\Datasets\LIVE\dmos_realigned.mat');%dmos and orgs. orgs(i)==0 for distorted images.
                                             %dmos=[dmos_jpeg2000(1:227) dmos_jpeg(1:233) white_noise(1:174) gaussian_blur(1:174) fast_fading(1:174)]
-txtpath='..\Datasets\data/LIVE-';
-txtpath=strcat(txtpath,MetricName(MetricNum));
-txtpath=strcat(txtpath,'.txt');
+txtpath='..\Datasets\data\LIVE-';
+txtpath=strcat(txtpath,num2str(MetricNum));
+txtpath=strcat(txtpath,'.csv');
 txtpath=char(txtpath);
 
 iqa_pred=[];
 imgn=[227,233,174,174,174];
 delta=[0,227,460,634,808];
+cnt=0;
 for j=1:5
     simgn=imgn(j);
     pad=char(pathd(j));
     delt=delta(j);
   for i=1:simgn
+    cnt = cnt+1
     refname=strcat(pathr,refnames_all(i+delt));
     disname=strcat(pad,'img');
     disname=strcat(disname,num2str(i));
@@ -40,7 +105,8 @@ end
 %writetxt(iqa,'d:/database/qaclive.txt');
 %writetxt(iqa,'e:/IQA/database/data/LIVE-FSIM.txt');
 % [CC,SROCC,RMSE]=performance_eval(test_quality,test_mos,isShow);
-writetxt(iqa,txtpath);
+csvwrite(txtpath,iqa_pred);
+dmos_new=dmos_new';
 end
 
 
@@ -81,7 +147,7 @@ for j=1:5
   end
 end
 %writetxt(iqa,'d:/database/gmsdcsiq.txt');
-writetxt(iqa,txtpath);
+csvwrite(iqa,txtpath);
 end
 %} 
 
@@ -282,8 +348,12 @@ function iqares=metric(refimage,disimage,metricnumber);
         case 1
             iqares=PSNR(refimage,disimage);
         case 2
+            refimage=double(rgb2gray(refimage));
+            disimage=double(rgb2gray(disimage));
             [iqares s_map]=ssim_index(refimage,disimage);
         case 3
+            refimage=double(rgb2gray(refimage));
+            disimage=double(rgb2gray(disimage));
             iqares= msssim(refimage,disimage);
         case 4
             iqares= vifvec(refimage,disimage);
@@ -317,8 +387,3 @@ function iqares=metric(refimage,disimage,metricnumber);
             iqares = QAC(im, cluster_center, feature_fun);
     end
 end
-
-        
-        
-    
-

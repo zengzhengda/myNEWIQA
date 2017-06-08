@@ -9,7 +9,7 @@ if (nargin < 2 || nargin > 7)
    overall_mssim = -Inf;
    return;
 end
-aaaa=1,
+aaaa=1;
 if (~exist('K'))
    K = [0.01 0.03];
 end
@@ -68,9 +68,9 @@ if (level < 1)
    return
 end
 
-aaaa=1, 
-min_img_width = min(M, N)/(2^(level-1)),
-max_win_width = max(H, W),
+aaaa=1;
+min_img_width = min(M, N)/(2^(level-1));
+max_win_width = max(H, W);
 if (min_img_width < max_win_width)
    overall_mssim = -Inf;
    return;
