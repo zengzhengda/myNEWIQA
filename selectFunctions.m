@@ -24,7 +24,7 @@ MetricName=cell(1,30);
 MetricName(1)={'PSNR'};MetricName(2)={'SSIM'};MetricName(3)={'MSSIM'};
 MetricName(4)={'VIF'};MetricName(5)={'VSNR'};MetricName(6)={'MAD'};
 MetricName(7)={'IWSSIM'};MetricName(8)={'FSIM'};MetricName(9)={'GMSD'};
-MetricName(10)={'Setr'};MetricName(11)={'SIQA'};
+MetricName(10)={'Setr'};MetricName(11)={'SIQA'};MetricName(12)={'Sparse_SSIM'};
 MetricName(20)={'BIQI'};MetricName(21)={'BRISQUE'};MetricName(22)={'DIVINE'};
 MetricName(23)={'BLIINDS'};MetricName(24)={'QAC'};
 % 返回结果
@@ -62,7 +62,7 @@ end
 end
 
 %LIVE
-function [dmos_new,iqa_pred]=iqatest_live(MetricNum)
+function [iqa_sub,iqa_pred]=iqatest_live(MetricNum)
 load('..\Datasets\LIVE\refnames_all.mat');
 %refnames_all{i} is the name of the reference image for image i whose dmos value is given by dmos(i).
 load('..\Datasets\LIVE\dmos.mat');%dmos and orgs. orgs(i)==0 for distorted images.
@@ -83,16 +83,18 @@ txtpath=strcat(txtpath,'.csv');
 txtpath=char(txtpath);
 
 iqa_pred=[];
-imgn=[227,233,174,174,174];
+iqa_sub=[];
+% imgn=[227,233,174,174,174]; % 测试全部图像
+imgn=[5,5,5,5,5]; %只测试部分图像
+
 delta=[0,227,460,634,808];
-cnt=0;
 for j=1:5
     simgn=imgn(j);
     pad=char(pathd(j));
     delt=delta(j);
   for i=1:simgn
-    cnt = cnt+1
-    refname=strcat(pathr,refnames_all(i+delt));
+    index=i+delt
+    refname=strcat(pathr,refnames_all(index));
     disname=strcat(pad,'img');
     disname=strcat(disname,num2str(i));
     disname=strcat(disname,'.bmp');
@@ -100,13 +102,15 @@ for j=1:5
     disimg=imread(disname);
     iqaij=metric(refimg,disimg,MetricNum);
     iqa_pred=[iqa_pred;iqaij];
+    
+    % subjective scores
+    iqa_sub=[iqa_sub dmos_new(index)];
   end
 end
 %writetxt(iqa,'d:/database/qaclive.txt');
 %writetxt(iqa,'e:/IQA/database/data/LIVE-FSIM.txt');
 % [CC,SROCC,RMSE]=performance_eval(test_quality,test_mos,isShow);
 csvwrite(txtpath,iqa_pred);
-dmos_new=dmos_new';
 end
 
 
@@ -372,6 +376,11 @@ function iqares=metric(refimage,disimage,metricnumber);
             iqares=Setr(refimage,disimage);    
         case 11
             iqares=SIQA(refimage,disimage);
+        case 12
+            param.lambda=[0.0002, 0];
+            param.semiN=2;
+            param.padval='symmetric';
+            iqares=Sparse_ssim(refimage,disimage,param);
         case 20
             [iqares probs]= biqi(rgb2gray(disimage));
         case 21
