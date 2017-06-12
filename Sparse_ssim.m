@@ -55,7 +55,7 @@ for i = 1 : r
         %compute the local mean,standard deviation, and covariance
         [tempCoes1 path1] = mexLasso(Y1, X1, paramRegression) ;
         tempCoes1 = full(tempCoes1)' ;
-        tempCoes1=[tempCoes1(1:4) 1 tempCoes1(5:8)];
+        tempCoes1=[tempCoes1(1:4) 0 tempCoes1(5:8)];
         tempCoes1=reshape(tempCoes1,[3,3]);
         patch1=imp1(R-1:R+1,C-1:C+1);
         patch11=tempCoes1.*patch1;
@@ -64,7 +64,7 @@ for i = 1 : r
         
         [tempCoes2 path2] = mexLasso(Y2, X2, paramRegression) ;
         tempCoes2 = full(tempCoes2)' ;
-        tempCoes2=[tempCoes2(1:4) 1 tempCoes2(5:8)];
+        tempCoes2=[tempCoes2(1:4) 0 tempCoes2(5:8)];
         tempCoes2=reshape(tempCoes2,[3,3]);
         patch2=imp2(R-1:R+1,C-1:C+1);
         patch22= tempCoes2 .* patch2;

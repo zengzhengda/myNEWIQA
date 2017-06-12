@@ -10,4 +10,4 @@ MetricName(23)={'BLIINDS'};MetricName(24)={'QAC'};
 DataBase=[1];    %1,LIVE;2,CSIQ;3,TID2008;4,MDIQ;5,TID2013;6,CID2013;7,MDID;
 Metric=[12];%1,PSNR;2,SSIM;3,MSSIM;4,VIF;5,VSNR;6,MAD;7,IW-SSIM;8,FSIM;9,GMSD;   20,BIQI;21,BRISQUE;22,DIVINE;23,BLIINDS;24,QAC;
 [iqa_sub,iqa_obj,CCs,SROCCs,RMSEs,betas]=selectFunctions(DataBase,Metric);
-evaluate_str=[num2str(CCs) '|' num2str(SROCCs) ' ' num2str(RMSEs)]
+evaluate_str=[num2str(CCs) '|' num2str(SROCCs) '|' num2str(RMSEs)]

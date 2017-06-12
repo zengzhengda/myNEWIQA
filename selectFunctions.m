@@ -85,7 +85,7 @@ txtpath=char(txtpath);
 iqa_pred=[];
 iqa_sub=[];
 % imgn=[227,233,174,174,174]; % 测试全部图像
-imgn=[5,5,5,5,5]; %只测试部分图像
+imgn=[20,20,20,20,20]; %只测试部分图像
 
 delta=[0,227,460,634,808];
 for j=1:5
@@ -104,7 +104,7 @@ for j=1:5
     iqa_pred=[iqa_pred;iqaij];
     
     % subjective scores
-    iqa_sub=[iqa_sub dmos_new(index)];
+    iqa_sub=[iqa_sub;dmos_new(index)];
   end
 end
 %writetxt(iqa,'d:/database/qaclive.txt');
